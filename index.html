@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0B6E5F" />
+  <title>TopUp – Deposit</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============ Top bar ============ -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">₹</span>
+        <span class="brand-name">TopUp</span>
+      </div>
+      <span class="topbar-title" id="topbarTitle">Home</span>
+    </header>
+
+    <main id="main">
+
+      <!-- ============ HOME ============ -->
+      <section class="tab is-active" id="tab-home" data-title="Home">
+        <h1>Add money in three steps</h1>
+        <p class="lead">Pay from any UPI app, then send us the reference number.</p>
+
+        <!-- This really is a sequence, so numbering is used here -->
+        <ol class="steps">
+          <li><strong>Pick an amount.</strong> Open Deposit and press Buy on a range.</li>
+          <li><strong>Pay with UPI.</strong> Go to Transfer opens your UPI app with the details filled in.</li>
+          <li><strong>Submit your UTR.</strong> We check it against our bank account and confirm.</li>
+        </ol>
+
+        <dl class="summary" aria-label="Your deposits">
+          <div><dt>Verified deposits</dt><dd id="homeVerified">₹0</dd></div>
+          <div><dt>Open orders</dt><dd id="homeOpen">0</dd></div>
+        </dl>
+
+        <button class="btn btn-primary btn-block" data-goto="deposit">Add funds</button>
+      </section>
+
+      <!-- ============ DEPOSIT ============ -->
+      <section class="tab" id="tab-deposit" data-title="Deposit">
+        <h1>Deposit</h1>
+        <p class="lead">Choose a range. You'll set the exact amount on the next screen.</p>
+        <ul class="tiers" id="tierList" aria-live="polite">
+          <li class="tier-skeleton">Loading amounts…</li>
+        </ul>
+      </section>
+
+      <!-- ============ TOOL ============ -->
+      <section class="tab" id="tab-tool" data-title="Tool">
+        <h1>Tools</h1>
+
+        <h2>Find an order</h2>
+        <p class="lead">Paid already? Enter your Order ID to see where it stands.</p>
+        <form class="inline-form" id="lookupForm" novalidate>
+          <label class="sr-only" for="lookupInput">Order ID</label>
+          <input id="lookupInput" type="text" placeholder="DP…" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+          <button class="btn btn-primary" type="submit">Find order</button>
+        </form>
+        <p class="field-error" id="lookupError" role="alert" hidden></p>
+
+        <h2>Before you pay</h2>
+        <ul class="tips">
+          <li>Pay the exact amount shown. A different amount can't be matched.</li>
+          <li>Finish within the 20-minute timer, or the order expires.</li>
+          <li>The UTR is the 12-digit reference in your payment app's success screen.</li>
+          <li>On a computer? Copy the UPI ID and pay from your phone.</li>
+        </ul>
+      </section>
+
+      <!-- ============ TEAMS ============ -->
+      <section class="tab" id="tab-teams" data-title="Teams">
+        <h1>Teams</h1>
+        <div class="empty">
+          <p class="empty-title">No team yet</p>
+          <p>Shared team wallets aren't set up on this account. Add your team's members here once team accounts are enabled.</p>
+        </div>
+      </section>
+
+      <!-- ============ ASSETS ============ -->
+      <section class="tab" id="tab-assets" data-title="Assets">
+        <h1>Assets</h1>
+        <dl class="summary" aria-label="Balance">
+          <div><dt>Verified deposits</dt><dd id="assetVerified">₹0</dd></div>
+          <div><dt>Waiting for review</dt><dd id="assetPending">₹0</dd></div>
+        </dl>
+
+        <h2>Your orders</h2>
+        <ul class="orders" id="orderList" aria-live="polite"></ul>
+        <div class="empty" id="ordersEmpty" hidden>
+          <p class="empty-title">No orders on this device</p>
+          <p>Orders you create here will appear in this list.</p>
+          <button class="btn btn-ghost" data-goto="deposit">Make a deposit</button>
+        </div>
+      </section>
+
+      <!-- ============ TRANSACTION INFORMATION (full page) ============ -->
+      <section class="page" id="orderView" hidden aria-labelledby="orderTitle">
+        <button class="back" id="backBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+          Back
+        </button>
+        <h1 id="orderTitle" tabindex="-1">Transaction information</h1>
+
+        <!-- Ticket: the memorable element of the app -->
+        <div class="ticket" id="ticket" data-status="pending">
+          <div class="ticket-timer">
+            <span class="ticket-timer-label" id="timerLabel">Expires in</span>
+            <span class="ticket-timer-value" id="ordTimer" role="timer" aria-live="off">20:00</span>
+          </div>
+          <div class="ticket-body">
+            <p class="ticket-amount-label">Amount to pay</p>
+            <p class="ticket-amount" id="ordAmount">₹0</p>
+            <span class="chip" id="ordStatus">Awaiting payment</span>
+          </div>
+          <div class="perf" aria-hidden="true"></div>
+          <div class="ticket-body">
+            <dl class="kv">
+              <div class="kv-row">
+                <dt>Order ID</dt>
+                <dd><span id="ordId"></span><button class="copy" type="button" data-copy-from="ordId">Copy</button></dd>
+              </div>
+            </dl>
+            <h2 class="ticket-h2">Pay to</h2>
+            <dl class="kv" id="payeeRows"></dl>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="goBtn" type="button">Go to Transfer</button>
+        <p class="hint" id="goHint">Opens your UPI app with the payee and amount already filled in.</p>
+
+        <form class="utr" id="utrForm" novalidate>
+          <h2>Paid? Submit your UTR</h2>
+          <label for="utrInput">UTR / transaction ID</label>
+          <div class="inline-form">
+            <input id="utrInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="12-digit number" autocomplete="off" />
+            <button class="btn btn-primary" id="utrBtn" type="submit">Submit UTR</button>
+          </div>
+          <p class="field-error" id="utrError" role="alert" hidden></p>
+        </form>
+
+        <div class="notice notice-success" id="utrDone" role="status" hidden>
+          <p class="notice-title">UTR received</p>
+          <p id="utrDoneText">We'll match it with our bank statement and update this order.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============ Bottom tab bar ============ -->
+    <nav class="tabbar" id="tabbar" aria-label="Main">
+      <button data-tab="home" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
+        <span>Home</span>
+      </button>
+      <button data-tab="deposit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" /></svg>
+        <span>Deposit</span>
+      </button>
+      <button data-tab="tool">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.2-.5-.5-2.2z" /></svg>
+        <span>Tool</span>
+      </button>
+      <button data-tab="teams">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><circle cx="17" cy="9" r="2.5" /><path d="M17 14c2.5 0 4 1.8 4 4.5" /></svg>
+        <span>Teams</span>
+      </button>
+      <button data-tab="assets">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2" /><path d="M3 10h18M16 15h2" /></svg>
+        <span>Assets</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ============ Payment-method dialog (bottom sheet) ============ -->
+  <dialog id="payDialog" aria-labelledby="payTitle">
+    <form method="dialog" id="payForm" novalidate>
+      <h2 id="payTitle">Choose how to pay</h2>
+
+      <label for="amountInput">Amount</label>
+      <div class="amount-field">
+        <span aria-hidden="true">₹</span>
+        <input id="amountInput" type="number" inputmode="numeric" step="1" />
+      </div>
+      <p class="hint" id="amountHint"></p>
+
+      <fieldset>
+        <legend>Payment method</legend>
+        <label class="radio-row"><input type="radio" name="method" value="paytm" /><span>Paytm</span></label>
+        <label class="radio-row"><input type="radio" name="method" value="phonepe" /><span>PhonePe</span></label>
+        <label class="radio-row"><input type="radio" name="method" value="upi" checked /><span>Any UPI app <small>Google Pay, BHIM, bank apps</small></span></label>
+      </fieldset>
+
+      <p class="field-error" id="payError" role="alert" hidden></p>
+
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" type="button" id="payCancel">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="payConfirm">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
